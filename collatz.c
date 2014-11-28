@@ -19,7 +19,7 @@ typedef struct {
 //メモ領域の大きさ 2～1000,000の時はこれくらいにしておくのが最も早くなる。なぜかはわからない。
 unsigned long memo_size = 2 * 1024 * 1024;
 
-register memo_t* glob_memo; //メモ領域のポインタ
+static memo_t* glob_memo; //メモ領域のポインタ
 
 /*****************************************************
  * メモ領域を確保する。
@@ -65,6 +65,7 @@ void registerMemo(const unsigned int n, const unsigned short steps){
 int collatz(const unsigned long long n, const unsigned short steps){
     unsigned long long next_n;
     unsigned short memo;
+    unsigned short next_steps;
     
     if(n == 1) return steps;
     
@@ -73,10 +74,10 @@ int collatz(const unsigned long long n, const unsigned short steps){
     
     next_n = (n % 2 == 0) ? n / 2 : (n * 3) + 1;
     
-    steps = collatz(next_n, steps) + 1;
-    registerMemo(n, steps);
+    next_steps = collatz(next_n, steps) + 1;
+    registerMemo(n, next_steps);
     
-    return steps;
+    return next_steps;
 }
 
 /******************************************************
@@ -117,7 +118,7 @@ void main(void) {
     
     end_time = clock();
     printf("結果：ステップ数が多くなる初期値は\"%d\"で%dステップかかります。\r\n", result.n, result.steps);
-    printf("time=%d[ms]   memo size=%lubyte\r\n", end_time - start_time, memo_size);
+    printf("time=%.3f[s]   memo size=%lubyte\r\n", (double)(end_time - start_time) / CLOCKS_PER_SEC, memo_size);
     
     return;
 }
