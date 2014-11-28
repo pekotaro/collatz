@@ -19,7 +19,7 @@ typedef struct {
 //メモ領域の大きさ 2～1000,000の時はこれくらいにしておくのが最も早くなる。なぜかはわからない。
 unsigned long memo_size = 2 * 1024 * 1024;
 
-register memo_t* glob_memo; //メモ領域のポインタ
+static memo_t* glob_memo; //メモ領域のポインタ
 
 /*****************************************************
  * メモ領域を確保する。
@@ -62,9 +62,10 @@ void registerMemo(const unsigned int n, const unsigned short steps){
 /*****************************************************
  * コラッツの計算を行う再帰関数
  *****************************************************/
-int collutz(const unsigned long long n, const unsigned short steps){
+int collatz(const unsigned long long n, const unsigned short steps){
     unsigned long long next_n;
     unsigned short memo;
+    unsigned short next_steps;
     
     if(n == 1) return steps;
     
@@ -73,16 +74,16 @@ int collutz(const unsigned long long n, const unsigned short steps){
     
     next_n = (n % 2 == 0) ? n / 2 : (n * 3) + 1;
     
-    steps = collutz(next_n, steps) + 1;
-    registerMemo(n, steps);
+    next_steps = collatz(next_n, steps) + 1;
+    registerMemo(n, next_steps);
     
-    return steps;
+    return next_steps;
 }
 
 /******************************************************
  * メイン・ループ
  ******************************************************/
-result_t collutz_roop(int first_n, int last_n){
+result_t collatz_roop(int first_n, int last_n){
     int n;
     unsigned short steps;
     result_t result = {0, 0};
@@ -91,7 +92,7 @@ result_t collutz_roop(int first_n, int last_n){
     
     //計算ループ
     for(n = first_n; n <= last_n; n++){
-        steps = collutz((unsigned long long)n, 0);
+        steps = collatz((unsigned long long)n, 0);
         if(steps > result.steps){
             result.n = n;
             result.steps = steps;
@@ -113,11 +114,11 @@ void main(void) {
     printf("コラッツの問題を計算します。（%d～%d）\r\n", first_n, last_n);
     
     //実行
-    result = collutz_roop(first_n, last_n);
+    result = collatz_roop(first_n, last_n);
     
     end_time = clock();
     printf("結果：ステップ数が多くなる初期値は\"%d\"で%dステップかかります。\r\n", result.n, result.steps);
-    printf("time=%d[ms]   memo size=%lubyte\r\n", end_time - start_time, memo_size);
+    printf("time=%.3f[s]   memo size=%lubyte\r\n", (double)(end_time - start_time) / CLOCKS_PER_SEC, memo_size);
     
     return;
 }
