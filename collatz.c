@@ -62,7 +62,7 @@ void registerMemo(const unsigned int n, const unsigned short steps){
 /*****************************************************
  * コラッツの計算を行う再帰関数
  *****************************************************/
-int collutz(const unsigned long long n, const unsigned short steps){
+int collatz(const unsigned long long n, const unsigned short steps){
     unsigned long long next_n;
     unsigned short memo;
     
@@ -73,7 +73,7 @@ int collutz(const unsigned long long n, const unsigned short steps){
     
     next_n = (n % 2 == 0) ? n / 2 : (n * 3) + 1;
     
-    steps = collutz(next_n, steps) + 1;
+    steps = collatz(next_n, steps) + 1;
     registerMemo(n, steps);
     
     return steps;
@@ -82,7 +82,7 @@ int collutz(const unsigned long long n, const unsigned short steps){
 /******************************************************
  * メイン・ループ
  ******************************************************/
-result_t collutz_roop(int first_n, int last_n){
+result_t collatz_roop(int first_n, int last_n){
     int n;
     unsigned short steps;
     result_t result = {0, 0};
@@ -91,7 +91,7 @@ result_t collutz_roop(int first_n, int last_n){
     
     //計算ループ
     for(n = first_n; n <= last_n; n++){
-        steps = collutz((unsigned long long)n, 0);
+        steps = collatz((unsigned long long)n, 0);
         if(steps > result.steps){
             result.n = n;
             result.steps = steps;
@@ -113,7 +113,7 @@ void main(void) {
     printf("コラッツの問題を計算します。（%d～%d）\r\n", first_n, last_n);
     
     //実行
-    result = collutz_roop(first_n, last_n);
+    result = collatz_roop(first_n, last_n);
     
     end_time = clock();
     printf("結果：ステップ数が多くなる初期値は\"%d\"で%dステップかかります。\r\n", result.n, result.steps);
