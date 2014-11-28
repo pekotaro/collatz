@@ -62,22 +62,21 @@ void registerMemo(const unsigned int n, const unsigned short steps){
 /*****************************************************
  * コラッツの計算を行う再帰関数
  *****************************************************/
-int collatz(const unsigned long long n, const unsigned short steps){
+int collatz(const unsigned long long n){
     unsigned long long next_n;
-    unsigned short memo;
-    unsigned short next_steps;
+    unsigned short memo, steps_to_1;
     
-    if(n == 1) return steps;
+    if(n == 1) return 0;
     
     memo = getMemo(n);
     if(memo > 0) return memo;
     
     next_n = (n % 2 == 0) ? n / 2 : (n * 3) + 1;
     
-    next_steps = collatz(next_n, steps) + 1;
-    registerMemo(n, next_steps);
+    steps_to_1 = collatz(next_n) + 1;
+    registerMemo(n, steps_to_1);
     
-    return next_steps;
+    return steps_to_1;
 }
 
 /******************************************************
@@ -92,7 +91,7 @@ result_t collatz_roop(int first_n, int last_n){
     
     //計算ループ
     for(n = first_n; n <= last_n; n++){
-        steps = collatz((unsigned long long)n, 0);
+        steps = collatz((unsigned long long)n);
         if(steps > result.steps){
             result.n = n;
             result.steps = steps;
@@ -118,7 +117,7 @@ void main(void) {
     
     end_time = clock();
     printf("結果：ステップ数が多くなる初期値は\"%d\"で%dステップかかります。\r\n", result.n, result.steps);
-    printf("time=%.3f[s]   memo size=%lubyte\r\n", (double)(end_time - start_time) / CLOCKS_PER_SEC, memo_size);
+    printf("time=%.3f[s]   memo size=%lu[byte]\r\n", (double)(end_time - start_time) / CLOCKS_PER_SEC, memo_size);
     
     return;
 }
