@@ -11,26 +11,22 @@ typedef struct {
     unsigned short steps;
 } result_t;
 
-//メモ一つ分。メモリ節約のため、uchar２つ(2バイト)で表現する。
-typedef struct {
-    unsigned char high, low;
-} memo_t;
 
 //メモ領域の大きさ 2～1000,000の時はこれくらいにしておくのが最も早くなる。なぜかはわからない。
 unsigned long memo_size = 2 * 1024 * 1024;
 
-static memo_t* glob_memo; //メモ領域のポインタ
+static short* glob_memo; //メモ領域のポインタ
 
 /*****************************************************
  * メモ領域を確保する。
  *****************************************************/
-memo_t* allocMemo(){
+short* allocMemo(){
     long size;
-    memo_t* ptr_memo = NULL;
+    short* ptr_memo = NULL;
     
     //メモ領域確保
     while(1){
-        ptr_memo = (memo_t*)calloc(memo_size / sizeof(memo_t), sizeof(memo_t));
+        ptr_memo = (short*)calloc(memo_size / sizeof(short), sizeof(short));
         if(ptr_memo != NULL || memo_size < 0) break;
         memo_size = memo_size - (256 * 1024);
     }
@@ -46,7 +42,7 @@ memo_t* allocMemo(){
  *****************************************************/
 unsigned short getMemo(const unsigned int n){
     if(n > MAX_MEMO_INDEX) return 0;
-    return (int)((int)(glob_memo[n].high << 8) + (int)glob_memo[n].low);
+    return glob_memo[n];
 }
 
 /*****************************************************
@@ -54,8 +50,7 @@ unsigned short getMemo(const unsigned int n){
  *****************************************************/
 void registerMemo(const unsigned int n, const unsigned short steps){
     if(n > MAX_MEMO_INDEX) return;
-    glob_memo[n].high = (unsigned char)(steps >> 8);
-    glob_memo[n].low = (unsigned char)(steps &  0xFF);
+    glob_memo[n] = steps;
 }
 
 
@@ -66,10 +61,10 @@ int collatz(const unsigned long long n){
     unsigned long long next_n;
     unsigned short memo, steps_to_1;
     
-    if(n == 1) return 0;
-    
     memo = getMemo(n);
     if(memo > 0) return memo;
+    
+    if(n == 1) return 0;
     
     next_n = (n % 2 == 0) ? n / 2 : (n * 3) + 1;
     
